@@ -1,0 +1,113 @@
+# OneBrain Implementation Plan
+
+This plan outlines the roadmap for transforming SurfSense into **OneBrain**: An enterprise AI knowledge management platform for OneOrigin.
+
+## Goal
+To fork the SurfSense open-source project and rebrand/enhance it into a private, self-hosted knowledge management platform with specific support for Google OAuth, mobile access, and AI media generation.
+
+## User Review Required
+> [!IMPORTANT]
+> **Workspace Access**: The codebase is currently located at `/mnt/projects/OneBrain`, which is outside the active workspace. Please add this path to the workspace or move files to `/mnt/nas/projects/one-brain`.
+
+> [!WARNING]
+> **Rebranding Scope**: The "SurfSense" name appears extensively in backend service names, frontend headers, and configuration files. A global find-and-replace must be done carefully to avoid breaking internal references.
+
+## Phases Overview
+
+### Phase 1: Foundation (Weeks 1-4)
+**Goal**: Establish the OneBrain identity, secure the platform, and deploy the core infrastructure.
+- **Rebranding**: Remove "SurfSense", apply OneBrain/OneOrigin branding (Colors, UI, Logos).
+- **Authentication**: Replace generic auth with **Google OAuth (@oneorigin.us)** & **JWT Sessions**.
+- **Infrastructure**: Docker Compose setup for NAS deployment (Postgres/pgvector, Redis, MinIO).
+- **CI/CD**: Git workflows for independent maintenance.
+
+### Phase 2: Mobile Development (Weeks 5-10)
+**Goal**: Enable "OneBrain on the Go" with native iOS/Android apps.
+- **Tech Stack**: React Native + Expo + shadcn/ui.
+- **Features**: Semantic Search, AI Chat, Document Viewer, Offline Caching, Biometric Auth.
+
+### Phase 3: Media Generation (Weeks 11-14)
+**Goal**: Transform OneBrain into a creative studio.
+- **Plugin Architecture**: Create an `IGenerationProvider` interface for extensibility.
+- **Integrations**:
+    - **Design**: Figma (Asset export/import).
+    - **Image**: NanoBanana, DALL-E, Stable Diffusion, Midjourney.
+    - **Video**: Runway, Pika, Luma.
+- **Context Awareness**: Extract prompt context from stored documents.
+
+### Phase 4: Enhancement (Weeks 15-18)
+**Goal**: Polish and scale.
+- **Knowledge Management**: Advanced sharing (RBAC), Version History, Cross-library search.
+- **Performance**: Optimizing NAS deployment, caching strategies.
+
+---
+
+## Detailed Technical Plan
+
+### 1. Foundation & Rebranding (Phase 1)
+
+#### Backend (`/surfsense_backend` -> `/onebrain_backend`)
+- **Rename**: Module folders and main service entry points.
+- **API**: Update `FastAPI` title, description, and version.
+- **Auth Service**:
+    - [DELETE] Existing username/password registration.
+    - [NEW] `auth_google_oauth.py`: Implement Google OAuth 2.0 flow.
+    - [MODIFY] `auth_router.py`: Enforce `@oneorigin.us` email domain restriction.
+    - [MODIFY] `dependencies.py`: Update JWT validation for new issuer.
+
+#### Frontend (`/surfsense_web` -> `/onebrain_web`)
+- **Config**: Update `package.json`, `next.config.js` metadata.
+- **UI/UX**:
+    - [MODIFY] `tailwind.config.ts`: Inject OneOrigin design system colors.
+    - [MODIFY] `layout.tsx`: Update page titles, favicons, and global headers.
+    - [MODIFY] `Login.tsx`: Remove form inputs; add "Sign in with Google" button.
+- **Cleanup**: Remove SurfSense social links, donation buttons, and "Powered by" footers.
+
+#### Infrastructure
+- [MODIFY] `docker-compose.yml`: Rename services (`onebrain-api`, `onebrain-web`, `onebrain-db`).
+- [NEW] `nginx.conf`: Reverse proxy configuration for NAS deployment (if needed).
+
+### 2. Mobile Application (Phase 2)
+
+#### Project Structure (`/onebrain_mobile`)
+- Initialize `expo` project with TypeScript.
+- Setup `nativewind` (Tailwind for RN) to match frontend design tokens.
+
+#### Core Modules
+- **Auth**: Expo AuthSession for Google OAuth (redirecting to OneBrain backend).
+- **API Client**: generated `axios` client from Backend OpenAPI spec.
+- **Screens**:
+    - `HomeScreen`: Recent docs, quick actions.
+    - `ChatScreen`: Streaming chat interface (WebSocket/SSE).
+    - `SearchScreen`: Hybrid search input.
+    - `DocViewScreen`: PDF/Text viewer.
+
+### 3. Media Generation (Phase 3)
+
+#### Backend Architecture
+- **Interface**:
+    ```python
+    class IGenerationProvider(ABC):
+        @abstractmethod
+        async def generate(self, prompt: str, context: list[Document], **kwargs) -> Asset:
+            pass
+    ```
+- **Service Layer**:
+    - `GenerationService`: Router to dispatch requests to specific providers.
+    - `AssetManager`: Handle storage of generated files in MinIO and metadata in Postgres.
+
+#### Frontend Integration
+- **Context Selector**: UI to select "Source Documents" for generation.
+- **Generation Studio**: dedicated route `/studio` for creating media.
+
+## Verification Plan
+
+### Automated Verification
+- **Backend Tests**: `pytest` suite ensuring all "SurfSense" strings are gone and Auth requires Google.
+- **Frontend Tests**: `npm run test` ensuring components render with new theme.
+- **Build Check**: `docker compose build` must pass without references to missing SurfSense paths.
+
+### Manual Verification
+1. **Startup**: Verify logs show "OneBrain API" starting.
+2. **UI Inspection**: Visual check of Login page (Logo, Colors) and Dashboard.
+3. **Auth Flow**: Attempt login with personal Gmail (Should Fail) and OneOrigin Gmail (Should Pass).

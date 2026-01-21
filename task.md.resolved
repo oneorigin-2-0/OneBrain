@@ -1,0 +1,33 @@
+# Tasks
+
+- [x] Analyze OneBrain PRD <!-- id: 0 -->
+    - [x] Read PRD content
+- [/] Initialize Project Structure <!-- id: 1 -->
+    - [x] Locate SurfSense Code (/mnt/projects/OneBrain)
+    - [ ] Verify Project Structure (Blocked: No Workspace Access)
+    - [ ] Move/Copy Code to Workspace
+    - [ ] Rename Folders (surfsense_backend -> onebrain_backend, etc.)
+- [ ] Phase 1: Foundation (Rebrand & Auth) <!-- id: 2 -->
+    - [ ] **Backend Rebranding**
+        - [ ] Find/Replace "SurfSense" in Python files
+        - [ ] Rename Services/Classes
+    - [ ] **Frontend Rebranding**
+        - [ ] Apply OneOrigin Design System (Tailwind)
+        - [ ] Update Layouts & Metadata
+        - [ ] Replace Logos/Assets
+    - [ ] **Infrastructure**
+        - [ ] Update docker-compose.yml
+    - [ ] **Authentication**
+        - [ ] Remove Basic Auth
+        - [ ] Implement Google OAuth (@oneorigin.us)
+- [ ] Phase 2: Mobile Development <!-- id: 3 -->
+    - [ ] Initialize Expo/React Native Project
+    - [ ] Setup API Client & Auth
+    - [ ] Build Core Screens (Chat, Search)
+- [ ] Phase 3: Media Generation <!-- id: 4 -->
+    - [ ] Create `IGenerationProvider` Interface
+    - [ ] Implement NanoBanana/Figma Plugins
+    - [ ] Build Frontend Studio UI
+- [ ] Phase 4: Enhancement <!-- id: 5 -->
+    - [ ] Knowledge Management Features
+    - [ ] Optimization
